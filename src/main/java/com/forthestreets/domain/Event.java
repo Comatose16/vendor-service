@@ -1,4 +1,4 @@
-package com.nicebreeze.fts.domain;
+package com.forthestreets.domain;
 
 import jakarta.persistence.*;
 import java.time.LocalDateTime;

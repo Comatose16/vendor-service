@@ -1,4 +1,4 @@
-package com.nicebreeze.fts.domain;
+package com.forthestreets.domain;
 
 import jakarta.persistence.*;
 import org.locationtech.jts.geom.Point;
@@ -32,7 +32,6 @@ public class Venue {
         this.location = location;
     }
 
-    // Helper method to keep bidirectional links perfectly synchronized
     public void addEvent(Event event) {
         this.events.add(event);
         event.setVenue(this);
@@ -43,7 +42,6 @@ public class Venue {
         event.setVenue(null);
     }
 
-    // Explicit Getters and Setters
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
 

@@ -1,4 +1,4 @@
-package com.nicebreeze.fts;
+package com.forthestreets;
 
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.testcontainers.service.connection.ServiceConnection;

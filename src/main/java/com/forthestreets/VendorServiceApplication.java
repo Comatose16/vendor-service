@@ -1,4 +1,4 @@
-package com.nicebreeze.fts;
+package com.forthestreets;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

@@ -1,4 +1,4 @@
-package com.nicebreeze.fts.domain;
+package com.forthestreets.domain;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.DiscriminatorValue;
@@ -25,10 +25,8 @@ public class HappyHour extends Event {
     }
 
     public String getDrinkSpecialsDetail() { return drinkSpecialsDetail; }
-
     public void setDrinkSpecialsDetail(String detail) { this.drinkSpecialsDetail = detail; }
 
     public String getFoodSpecialsDetail() { return foodSpecialsDetail; }
-
     public void setFoodSpecialsDetail(String detail) { this.foodSpecialsDetail = detail; }
 }
