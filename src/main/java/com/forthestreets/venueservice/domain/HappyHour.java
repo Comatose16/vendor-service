@@ -1,4 +1,4 @@
-package com.forthestreets.domain;
+package com.forthestreets.venueservice.domain;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.DiscriminatorValue;

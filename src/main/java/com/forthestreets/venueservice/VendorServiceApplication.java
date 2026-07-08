@@ -1,4 +1,4 @@
-package com.forthestreets;
+package com.forthestreets.venueservice;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

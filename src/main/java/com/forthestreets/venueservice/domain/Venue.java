@@ -1,4 +1,4 @@
-package com.forthestreets.domain;
+package com.forthestreets.venueservice.domain;
 
 import jakarta.persistence.*;
 import org.locationtech.jts.geom.Point;
