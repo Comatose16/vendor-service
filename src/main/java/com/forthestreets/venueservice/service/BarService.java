@@ -3,9 +3,12 @@ package com.forthestreets.venueservice.service;
 import com.forthestreets.venueservice.domain.Venue;
 import com.forthestreets.venueservice.dto.VenueRequest;
 import com.forthestreets.venueservice.dto.VenueResponse;
+import com.forthestreets.venueservice.exception.VenueNotFoundException;
 import com.forthestreets.venueservice.repository.VenueRepository;
 import com.forthestreets.venueservice.util.GeometryUtils;
 import org.locationtech.jts.geom.Point;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -14,6 +17,8 @@ import java.util.stream.Collectors;
 
 @Service
 public class BarService implements VenueService {
+
+    private static final Logger log = LoggerFactory.getLogger(BarService.class);
 
     private final VenueRepository venueRepository;
 
@@ -26,14 +31,16 @@ public class BarService implements VenueService {
     public VenueResponse createVenue(VenueRequest request) {
         Point spatialPoint = GeometryUtils.createPoint(request.latitude(), request.longitude());
         Venue venue = new Venue(request.name(), request.address(), spatialPoint);
+
         Venue savedVenue = venueRepository.save(venue);
+
         return mapToResponse(savedVenue);
     }
 
     @Override
     public VenueResponse getVenueById(Long id) {
         Venue venue = venueRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Bar not found with id: " + id));
+                .orElseThrow(() -> new VenueNotFoundException(id));
         return mapToResponse(venue);
     }
 
@@ -50,7 +57,7 @@ public class BarService implements VenueService {
     @Transactional
     public VenueResponse updateVenue(Long id, VenueRequest request) {
         Venue venue = venueRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Bar not found with id: " + id));
+                .orElseThrow(() -> new VenueNotFoundException(id));
 
         Point spatialPoint = GeometryUtils.createPoint(request.latitude(), request.longitude());
 
@@ -66,8 +73,9 @@ public class BarService implements VenueService {
     @Transactional
     public void deleteVenue(Long id) {
         if (!venueRepository.existsById(id)) {
-            throw new RuntimeException("Bar not found with id: " + id);
+            throw new VenueNotFoundException(id);
         }
+
         venueRepository.deleteById(id);
     }
 
