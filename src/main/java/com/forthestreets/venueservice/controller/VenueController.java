@@ -59,10 +59,12 @@ public class VenueController {
     public ResponseEntity<List<VenueResponse>> getVenuesNearby(
             @RequestParam double latitude,
             @RequestParam double longitude,
-            @RequestParam(defaultValue = "5000") double radiusInMeters) {
+            @RequestParam(defaultValue = "5.0") double radiusInMiles) {
 
-        log.debug("Scanning nearby venues around coordinates: ({}, {}) within radius: {}m",
-                latitude, longitude, radiusInMeters);
+        log.debug("Scanning nearby venues around coordinates: ({}, {}) within radius: {} miles",
+                latitude, longitude, radiusInMiles);
+
+        double radiusInMeters = radiusInMiles * 1609.34;
 
         List<VenueResponse> response = venueService.getVenuesNearby(latitude, longitude, radiusInMeters);
         return ResponseEntity.ok(response);

@@ -13,10 +13,10 @@ spring:
   flyway:
     enabled: true
     baseline-on-migrate: true # Re-baselines if you have an existing DB state
+    locations: classpath:db/migration
 
   # JPA / Hibernate Configuration
   jpa:
-    database-platform: org.hibernate.spatial.dialect.postgis.PostgisPGDialect
     hibernate:
       ddl-auto: validate
     show-sql: true
