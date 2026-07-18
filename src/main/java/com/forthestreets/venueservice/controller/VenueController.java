@@ -3,6 +3,7 @@ package com.forthestreets.venueservice.controller;
 import com.forthestreets.venueservice.dto.VenueRequest;
 import com.forthestreets.venueservice.dto.VenueResponse;
 import com.forthestreets.venueservice.service.VenueService;
+import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -15,6 +16,8 @@ import java.util.List;
 @RequestMapping("/api/v1/venues")
 public class VenueController {
 
+    public static final double METERS_PER_MILE = 1609.34;
+
     private static final Logger log = LoggerFactory.getLogger(VenueController.class);
 
     private final VenueService venueService;
@@ -24,11 +27,11 @@ public class VenueController {
     }
 
     /**
-     * Creates a brand new venue on the map.
+     * Creates a new venue on the map.
      * Returns HTTP 201 (Created) upon successful completion.
      */
     @PostMapping
-    public ResponseEntity<VenueResponse> createVenue(@RequestBody VenueRequest request) {
+    public ResponseEntity<VenueResponse> createVenue(@Valid @RequestBody VenueRequest request) {
         log.info("Creating venue '{}' at coordinates: ({}, {})",
                 request.name(), request.latitude(), request.longitude());
 
@@ -64,7 +67,7 @@ public class VenueController {
         log.debug("Scanning nearby venues around coordinates: ({}, {}) within radius: {} miles",
                 latitude, longitude, radiusInMiles);
 
-        double radiusInMeters = radiusInMiles * 1609.34;
+        double radiusInMeters = radiusInMiles * METERS_PER_MILE;
 
         List<VenueResponse> response = venueService.getVenuesNearby(latitude, longitude, radiusInMeters);
         return ResponseEntity.ok(response);
