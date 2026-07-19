@@ -4,6 +4,6 @@ public record VenueResponse(
         Long id,
         String name,
         String address,
-        double latitude,
-        double longitude
+        Double latitude,
+        Double longitude
 ) {}

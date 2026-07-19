@@ -32,8 +32,6 @@ class VenueControllerValidationTest {
     @Autowired
     private ObjectMapper objectMapper;
 
-    // 🌟 MODERN SPRING BOOT / JAVA 25 STANDARD:
-    // Replaced deprecated @MockBean with the official @MockitoBean engine.
     @MockitoBean
     private VenueService venueService;
 
@@ -108,14 +106,9 @@ class VenueControllerValidationTest {
         @Test
         @DisplayName("Validation Failure: Explicit Null coordinates should fail null check")
         void shouldRejectNullCoordinates() throws Exception {
-            // Passing explicit null coordinates via the Java record constructor
 
-            Map<String, Object> badRequest = new HashMap<>();
-            badRequest.put("name", "The Omitted Space");
-            badRequest.put("address", "123 Main St, Inglewood CA");
-            badRequest.put("latitude", null);
-            badRequest.put("longitude", null);
-
+            VenueRequest badRequest = new VenueRequest("The Null Cafe", "Downtown Inglewood", null, null);
+;
             MvcResult result = mockMvc.perform(post("/api/v1/venues")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(badRequest)))
