@@ -164,7 +164,6 @@ class VenueControllerValidationTest {
         @Test
         @DisplayName("Validation Failure: Passing String instead of Double should trigger parsing bad request (No 500 error)")
         void shouldRejectInvalidDataType() throws Exception {
-            // Intentionally passing an invalid text value for a double field
             Map<String, Object> payload = new HashMap<>();
             payload.put("name", "Type Mismatch Lounge");
             payload.put("address", "Inglewood");

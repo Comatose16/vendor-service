@@ -16,10 +16,13 @@
 	<properties>
 		<java.version>25</java.version>
 		<hibernate.version>7.4.2.Final</hibernate.version>
+		<unit-api.version>2.2</unit-api.version>
+		<indriya.version>2.2.4</indriya.version>
 		<maven.compiler.source>25</maven.compiler.source>
 		<maven.compiler.target>25</maven.compiler.target>
 	</properties>
 	<dependencies>
+		<!-- Spring Boot 4.x Dependencies -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-webmvc</artifactId>
@@ -43,17 +46,33 @@
 			<artifactId>flyway-database-postgresql</artifactId>
 		</dependency>
 
+		<!-- 📏 JSR 385 Units of Measurement Specification & Reference Implementation -->
+		<dependency>
+			<groupId>javax.measure</groupId>
+			<artifactId>unit-api</artifactId>
+			<version>${unit-api.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>tech.units</groupId>
+			<artifactId>indriya</artifactId>
+			<version>${indriya.version}</version>
+		</dependency>
 
+		<!-- Hibernate Spatial for geographic data-->
 		<dependency>
 			<groupId>org.hibernate.orm</groupId>
 			<artifactId>hibernate-spatial</artifactId>
 			<version>${hibernate.version}</version>
 		</dependency>
+
+		<!-- PostgreSQL JDBC Driver -->
 		<dependency>
 			<groupId>org.postgresql</groupId>
 			<artifactId>postgresql</artifactId>
 			<scope>runtime</scope>
 		</dependency>
+
+		<!-- Spring 4.0+ Test Dependencies -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-webmvc-test</artifactId>
@@ -64,6 +83,8 @@
 			<artifactId>spring-boot-starter-data-jpa-test</artifactId>
 			<scope>test</scope>
 		</dependency>
+
+		<!-- Testcontainers -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-testcontainers</artifactId>

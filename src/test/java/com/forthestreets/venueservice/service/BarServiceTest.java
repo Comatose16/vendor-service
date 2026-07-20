@@ -29,6 +29,9 @@ import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class BarServiceTest {
+
+    public static final int GPS_COORDINATE_PROJECTION = 4326;
+
     @Mock
     private VenueRepository venueRepository;
 
@@ -40,7 +43,7 @@ class BarServiceTest {
     @BeforeEach
     void setUp() {
         // SRID 4326 is standard GPS coordinates projection
-        geometryFactory = new GeometryFactory(new PrecisionModel(), 4326);
+        geometryFactory = new GeometryFactory(new PrecisionModel(), GPS_COORDINATE_PROJECTION);
     }
 
 
@@ -182,7 +185,6 @@ class BarServiceTest {
             existingVenue.setLocation(oldLocation);
 
             when(venueRepository.findById(venueId)).thenReturn(Optional.of(existingVenue));
-            when(venueRepository.save(any(Venue.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
             VenueResponse response = venueService.updateVenue(venueId, updateRequest);
 
@@ -222,7 +224,7 @@ class BarServiceTest {
             // When & Then
             assertThatThrownBy(() -> venueService.deleteVenue(badId))
                     .isInstanceOf(VenueNotFoundException.class)
-                    .hasMessageContaining("Cannot delete: Venue not found with ID: " + badId);
+                    .hasMessageContaining(String.format("Venue with ID %d could not be found", badId));
 
             verify(venueRepository, never()).deleteById(anyLong());
         }

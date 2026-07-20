@@ -12,11 +12,11 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+import static com.forthestreets.venueservice.util.GeometryUtils.milesToMeters;
+
 @RestController
 @RequestMapping("/api/v1/venues")
 public class VenueController {
-
-    public static final double METERS_PER_MILE = 1609.34;
 
     private static final Logger log = LoggerFactory.getLogger(VenueController.class);
 
@@ -67,7 +67,7 @@ public class VenueController {
         log.debug("Scanning nearby venues around coordinates: ({}, {}) within radius: {} miles",
                 latitude, longitude, radiusInMiles);
 
-        double radiusInMeters = radiusInMiles * METERS_PER_MILE;
+        double radiusInMeters = milesToMeters(radiusInMiles);
 
         List<VenueResponse> response = venueService.getVenuesNearby(latitude, longitude, radiusInMeters);
         return ResponseEntity.ok(response);
