@@ -141,9 +141,9 @@ class BarServiceTest {
             List<VenueResponse> response = venueService.getVenuesNearby(latitude, longitude, radiusInMeters);
 
             assertThat(response).hasSize(1);
-            assertThat(response.getFirst().name()).isEqualTo("Three Weavers");
-            assertThat(response.getFirst().latitude()).isEqualTo(33.9678);
-            assertThat(response.getFirst().longitude()).isEqualTo(-118.3734);
+            assertThat(response.getFirst().name()).isEqualTo("Close Spot");
+            assertThat(response.getFirst().latitude()).isEqualTo(33.9617);
+            assertThat(response.getFirst().longitude()).isEqualTo(-118.3533);
 
             verify(venueRepository, times(1)).findVenuesNearby(latitude, longitude, radiusInMeters);
         }

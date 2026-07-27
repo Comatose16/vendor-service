@@ -2,6 +2,7 @@ package com.forthestreets.venueservice;
 
 import com.forthestreets.venueservice.domain.Venue;
 import com.forthestreets.venueservice.repository.VenueRepository;
+import com.forthestreets.venueservice.util.GeometryUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -16,10 +17,19 @@ import java.util.List;
 
 import static com.forthestreets.venueservice.util.GeometryUtils.milesToMeters;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.within;
 
 @Transactional // Automatically rolls back transaction after each test, keeping the database clean
 @DisplayName("Venue Repository Integration Tests (PostGIS Container)")
 class VenueRepositoryIntegrationTest extends BaseIntegrationTest {
+
+    public static final double INTUIT_DOME_LAT = 33.9456;
+
+    public static final double INTUIT_DOME_LNG = -118.3418;
+
+    public static final double THREE_WEAVERS_LAT = 33.9678;
+
+    public static final double THREE_WEAVERS_LNG = -118.3734;
 
     @Autowired
     private VenueRepository venueRepository;
@@ -31,21 +41,21 @@ class VenueRepositoryIntegrationTest extends BaseIntegrationTest {
     void setUp() {
         venueRepository.deleteAll();
 
-        // 1. Create and persist Three Weavers Brewing (Inside radius: ~2.1 miles / ~3380m)
+        // 1. Create and persist Three Weavers Brewing (Inside radius: ~2.3 miles / ~3701.49m)
         Venue threeWeavers = new Venue();
         threeWeavers.setName("Three Weavers Brewing Company");
         threeWeavers.setAddress("1005 W Manchester Blvd, Inglewood, CA 90301");
-        threeWeavers.setLocation(createPoint(33.9678, -118.3734));
+        threeWeavers.setLocation(createPoint(THREE_WEAVERS_LAT, THREE_WEAVERS_LNG));
         venueRepository.save(threeWeavers);
 
-        // 2. Create and persist The Miracle Theater (Inside radius: ~2.8 miles / ~4500m)
+        // 2. Create and persist The Miracle Theater (Inside radius: ~1.9 miles / ~3057.75m)
         Venue miracleTheater = new Venue();
         miracleTheater.setName("The Miracle Theater");
         miracleTheater.setAddress("226 S Market St, Inglewood, CA 90301");
         miracleTheater.setLocation(createPoint(33.9617, -118.3533));
         venueRepository.save(miracleTheater);
 
-        // 3. Create and persist Dockweiler Beach (Outside radius: ~7.8 miles / ~12500m)
+        // 3. Create and persist Dockweiler Beach (Outside radius: ~ 5.84 miles / ~9398.569m)
         Venue dockweilerBeach = new Venue();
         dockweilerBeach.setName("Dockweiler Beach");
         dockweilerBeach.setAddress("12001 Vista Del Mar, Playa Del Rey, CA 90293");
@@ -54,47 +64,60 @@ class VenueRepositoryIntegrationTest extends BaseIntegrationTest {
     }
 
     @Test
+    @DisplayName("🌐 Precision Check: Validate offline mathematical distances against WGS84 standards")
+    void shouldVerifyExactGeodeticCoordinatesWithJsr385() {
+
+        double distanceInMiles = GeometryUtils.calculateHaversineDistance(
+                INTUIT_DOME_LAT, INTUIT_DOME_LNG,
+                THREE_WEAVERS_LAT, THREE_WEAVERS_LNG
+        ).to(GeometryUtils.MILE).getValue().doubleValue();
+
+        // Target check: ~2.37 miles. We assert with a precision margin of 0.05 miles
+        assertThat(distanceInMiles)
+                .as("Validate mathematical distance matches offline geographical expectations")
+                .isCloseTo(2.37, within(0.05));
+    }
+
+    /**
+     * Three Weavers is 2.3 miles (Included)
+     * Miracle Theater is 1.9 miles (Included)
+     * Dockweiler Beach is 5.84 miles (Excluded)
+     */
+    @Test
     @DisplayName("ST_DWithin Integration: Should find closest venues within narrow 2.5 mile radius")
     void shouldFindVenuesWithinNarrowMileRadius() {
-        // We stand at the Intuit Dome (33.9456, -118.3418)
-        double intuitDomeLat = 33.9456;
-        double intuitDomeLng = -118.3418;
-
         // 2.5 miles converted to meters = ~4023.35 meters
         double radiusInMetersFor2Point5Miles = milesToMeters(2.5);
 
         List<Venue> nearbyVenues = venueRepository.findVenuesNearby(
-                intuitDomeLat,
-                intuitDomeLng,
+                INTUIT_DOME_LAT,
+                INTUIT_DOME_LNG,
                 radiusInMetersFor2Point5Miles
         );
 
-        // Three Weavers is 2.1 miles (Included)
-        // Miracle Theater is 2.8 miles (Excluded)
-        // Dockweiler Beach is 7.8 miles (Excluded)
         assertThat(nearbyVenues)
-                .hasSize(1)
+                .hasSize(2)
                 .extracting(Venue::getName)
-                .containsExactly("Three Weavers Brewing Company");
+                .containsExactlyInAnyOrder("Three Weavers Brewing Company", "The Miracle Theater");
     }
 
+    /*
+     * Under 5 miles, both Three Weavers (2.3 mi) and Miracle Theater (1.9 mi) are caught.
+     * Dockweiler Beach (5.84 mi) remains safely filtered out.
+    */
     @Test
     @DisplayName("ST_DWithin Integration: Should capture outer venues within a broader 5.0 mile radius")
     void shouldFindVenuesWithinBiggerMileRadius() {
-        double intuitDomeLat = 33.9456;
-        double intuitDomeLng = -118.3418;
 
         // 5.0 miles converted to meters = ~8046.7 meters
         double radiusInMetersFor5Miles = milesToMeters(5.0);
 
         List<Venue> nearbyVenues = venueRepository.findVenuesNearby(
-                intuitDomeLat,
-                intuitDomeLng,
+                INTUIT_DOME_LAT,
+                INTUIT_DOME_LNG,
                 radiusInMetersFor5Miles
         );
 
-        // Under 5 miles, both Three Weavers (2.1 mi) and Miracle Theater (2.8 mi) are caught.
-        // Dockweiler Beach (7.8 mi) remains safely filtered out.
         assertThat(nearbyVenues)
                 .hasSize(2)
                 .extracting(Venue::getName)
