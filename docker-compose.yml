@@ -1,0 +1,44 @@
+services:
+  jaeger:
+    image: jaegertracing/all-in-one:latest
+    container_name: fts-jaeger
+    ports:
+      - "16686:16686" # Web UI
+      - "4318:4318"   # OTLP HTTP receive
+  postgres:
+    image: postgis/postgis:17-3.5-alpine
+    container_name: fts-postgres
+    environment:
+      POSTGRES_DB: fts
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d fts"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  venue-service:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: fts-venue-service
+    ports:
+      - "8080:8080"
+    environment:
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: fts
+      DB_USERNAME: postgres
+      DB_PASSWORD: postgres
+      MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE: "*"
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+volumes:
+  postgres_data:
