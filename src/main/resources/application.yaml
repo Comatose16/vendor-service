@@ -29,7 +29,11 @@ management:
   endpoints:
     web:
       exposure:
-        include: health, info, metrics
+        include: *
+  metrics:
+    distribution:
+      percentiles-histogram:
+        http.server.requests: true
   endpoint:
     health:
       show-details: always

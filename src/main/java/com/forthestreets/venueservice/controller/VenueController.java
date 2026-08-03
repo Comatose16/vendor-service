@@ -3,6 +3,12 @@ package com.forthestreets.venueservice.controller;
 import com.forthestreets.venueservice.dto.VenueRequest;
 import com.forthestreets.venueservice.dto.VenueResponse;
 import com.forthestreets.venueservice.service.VenueService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,6 +22,7 @@ import static com.forthestreets.venueservice.util.GeometryUtils.milesToMeters;
 
 @RestController
 @RequestMapping("/api/v1/venues")
+@Tag(name = "Venues", description = "Endpoints for managing venues and executing PostGIS spatial radius queries.")
 public class VenueController {
 
     private static final Logger log = LoggerFactory.getLogger(VenueController.class);
@@ -26,11 +33,13 @@ public class VenueController {
         this.venueService = venueService;
     }
 
-    /**
-     * Creates a new venue on the map.
-     * Returns HTTP 201 (Created) upon successful completion.
-     */
     @PostMapping
+    @Operation(summary = "Onboard a new venue", description = "Registers a new venue with PostGIS spatial coordinates (WGS84 SRID 4326).")
+    @ApiResponses({
+            @ApiResponse(responseCode = "201", description = "Venue onboarded successfully",
+                    content = @Content(schema = @Schema(implementation = VenueResponse.class))),
+            @ApiResponse(responseCode = "400", description = "Invalid request payload or coordinates out of range")
+    })
     public ResponseEntity<VenueResponse> createVenue(@Valid @RequestBody VenueRequest request) {
         log.info("Creating venue '{}' at coordinates: ({}, {})",
                 request.name(), request.latitude(), request.longitude());
@@ -42,11 +51,12 @@ public class VenueController {
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
-    /**
-     * 🔍 Fetches details of a specific venue by its database ID.
-     * Logged at DEBUG level to keep production consoles silent under high-traffic spikes.
-     */
     @GetMapping("/{id}")
+    @Operation(summary = "Get venue by ID", description = "Fetches detailed metadata for a specific venue.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Venue found"),
+            @ApiResponse(responseCode = "404", description = "Venue not found")
+    })
     public ResponseEntity<VenueResponse> getVenueById(@PathVariable Long id) {
         log.debug("Fetching details for venue ID: {}", id);
 
@@ -54,11 +64,12 @@ public class VenueController {
         return ResponseEntity.ok(response);
     }
 
-    /**
-     * Searches for venues closest to a specific location on the map.
-     * Integrates with our PostGIS spatial query engine.
-     */
     @GetMapping("/nearby")
+    @Operation(summary = "Perform spatial sweep for nearby venues",
+            description = "Executes native PostGIS ST_DWithin geography query to find active venues within a given radius.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "List of venues retrieved within radius")
+    })
     public ResponseEntity<List<VenueResponse>> getVenuesNearby(
             @RequestParam double latitude,
             @RequestParam double longitude,
@@ -73,11 +84,8 @@ public class VenueController {
         return ResponseEntity.ok(response);
     }
 
-    /**
-     * Updates an existing venue's properties.
-     * Triggers dynamic dirty checking on exit from the Service boundary.
-     */
     @PutMapping("/{id}")
+    @Operation(summary = "Update venue details", description = "Updates an existing venue name, address, or location coordinates.")
     public ResponseEntity<VenueResponse> updateVenue(
             @PathVariable Long id,
             @RequestBody VenueRequest request) {
@@ -91,12 +99,9 @@ public class VenueController {
         return ResponseEntity.ok(response);
     }
 
-    /**
-     * Permanently deletes a venue and all associated event sub-dependencies.
-     * Returns a crisp, standard HTTP 204 (No Content).
-     */
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
+    @Operation(summary = "Delete venue", description = "Removes a venue and its cascaded events from the registry.")
     public void deleteVenue(@PathVariable Long id) {
         log.info("Permanently removing venue ID: {}", id);
 
