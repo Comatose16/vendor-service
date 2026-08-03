@@ -25,30 +25,41 @@ spring:
         format_sql: true
 
 # Actuator Configuration
-  management:
-    endpoints:
-      web:
-        exposure:
-          include: health, info, metrics, prometheus
-    endpoint:
-      health:
-        show-details: always
-        probes:
-          enabled: true
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health, info, metrics
+  endpoint:
+    health:
+      show-details: always
+      probes:
+        enabled: true
+  otlp:
     metrics:
-      tags:
-        application: venue-service
-      distribution:
-        percentiles-histogram:
-          http.server.requests: true
+      export:
+        enabled: false
+  opentelemetry:
+    resource-attributes:
+      service:
+        name: venue-service
+        namespace: for-the-streets
     tracing:
-      sampling:
-        probability: 1.0 # Trace 100% of requests (lower in production, e.g., 0.1)
-      otlp:
-        tracing:
-          endpoint: http://localhost:4318/v1/traces # OTLP HTTP receiver (e.g., Jaeger)
-
+      export:
+        otlp:
+          endpoint: ${OTLP_ENDPOINT:http://localhost:4318/v1/traces}   # Jaeger OTLP HTTP Receiver
     logging:
-      pattern:
-        # Includes [appname, traceId, spanId] automatically in console logs
-        level: "%5p [${spring.application.name:},%X{traceId:-},%X{spanId:-}]"
+      export:
+        otlp:
+          endpoint: http://localhost:4318/v1/logs
+  tracing:
+    sampling:
+      probability: 1.0 # Trace 100% of requests (lower in production, e.g., 0.1)
+
+logging:
+  pattern:
+    # Includes [appname, traceId, spanId] automatically in console logs
+    level: "%5p [${spring.application.name:},%X{traceId:-},%X{spanId:-}]"
+  level:
+    org.springframework.web: "info"
+    org.hibernate: "error"
