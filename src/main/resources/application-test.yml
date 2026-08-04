@@ -1,0 +1,23 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://${DB_HOST}:${DB_PORT:5432}/${DB_NAME:fts_test}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 2
+  flyway:
+    locations:
+      - classpath:db/migration # Pure schema migration only
+
+management:
+  tracing:
+    sampling:
+      probability: 0.5 # Sample 50% of traffic
+  opentelemetry:
+    resource-attributes:
+      "service.name": venue-service-test
+    tracing:
+      export:
+        otlp:
+          endpoint: ${OTLP_ENDPOINT}

@@ -1,0 +1,31 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://${DB_HOST}:${DB_PORT:5432}/${DB_NAME:fts_prod}?sslmode=require
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+    hikari:
+      maximum-pool-size: 20
+      minimum-idle: 5
+      connection-timeout: 30000
+      idle-timeout: 600000
+  flyway:
+    locations:
+      - classpath:db/migration
+    clean-disabled: true # Security guardrail against schema loss
+
+management:
+  tracing:
+    sampling:
+      probability: 0.1 # Sample 10% of requests to optimize telemetry costs
+  opentelemetry:
+    resource-attributes:
+      "service.name": venue-service-prod
+    tracing:
+      export:
+        otlp:
+          endpoint: ${OTLP_ENDPOINT}
+
+logging:
+  level:
+    root: INFO
+    com.forthestreets: INFO

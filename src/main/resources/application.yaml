@@ -1,69 +1,24 @@
 spring:
   application:
     name: venue-service
-
-  # Database Configuration
-  datasource:
-    url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:fts}
-    username: ${DB_USERNAME}
-    password: ${DB_PASSWORD}
-    driver-class-name: org.postgresql.Driver
-
-  # FLYWAY CONFIGURATION
-  flyway:
-    enabled: true
-    baseline-on-migrate: true # Re-baselines if you have an existing DB state
-    locations: classpath:db/migration
-
-  # JPA / Hibernate Configuration
+  profiles:
+    active: ${SPRING_PROFILES_ACTIVE:sandbox}
   jpa:
+    database-platform: org.hibernate.spatial.dialect.postgis.PostgisDialect
     hibernate:
       ddl-auto: validate
-    show-sql: true
-    properties:
-      hibernate:
-        format_sql: true
+  flyway:
+    enabled: true
+    baseline-on-migrate: true
 
-# Actuator Configuration
+server:
+  port: 8080
+
 management:
   endpoints:
     web:
       exposure:
-        include: *
-  metrics:
-    distribution:
-      percentiles-histogram:
-        http.server.requests: true
+        include: health, info, prometheus
   endpoint:
     health:
-      show-details: always
-      probes:
-        enabled: true
-  otlp:
-    metrics:
-      export:
-        enabled: false
-  opentelemetry:
-    resource-attributes:
-      service:
-        name: venue-service
-        namespace: for-the-streets
-    tracing:
-      export:
-        otlp:
-          endpoint: ${OTLP_ENDPOINT:http://localhost:4318/v1/traces}   # Jaeger OTLP HTTP Receiver
-    logging:
-      export:
-        otlp:
-          endpoint: http://localhost:4318/v1/logs
-  tracing:
-    sampling:
-      probability: 1.0 # Trace 100% of requests (lower in production, e.g., 0.1)
-
-logging:
-  pattern:
-    # Includes [appname, traceId, spanId] automatically in console logs
-    level: "%5p [${spring.application.name:},%X{traceId:-},%X{spanId:-}]"
-  level:
-    org.springframework.web: "info"
-    org.hibernate: "error"
+      show-details: when-authorized
