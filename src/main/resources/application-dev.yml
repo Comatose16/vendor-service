@@ -1,0 +1,14 @@
+spring:
+  profiles:
+    active: ${SPRING_PROFILES_ACTIVE:dev}
+management:
+  tracing:
+    sampling:
+      probability: 1.0 # Trace everything for debugging
+  opentelemetry:
+    resource-attributes:
+      "service.name": venue-service-dev
+    tracing:
+      export:
+        otlp:
+          endpoint: ${OTLP_ENDPOINT:http://jaeger:4318/v1/traces}

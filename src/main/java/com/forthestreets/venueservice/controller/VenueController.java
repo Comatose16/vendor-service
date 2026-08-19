@@ -10,6 +10,8 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -73,7 +75,7 @@ public class VenueController {
     public ResponseEntity<List<VenueResponse>> getVenuesNearby(
             @RequestParam double latitude,
             @RequestParam double longitude,
-            @RequestParam(defaultValue = "5.0") double radiusInMiles) {
+            @RequestParam(defaultValue = "5.0") @Min(1) @Max(100) double radiusInMiles) {
 
         log.debug("Scanning nearby venues around coordinates: ({}, {}) within radius: {} miles",
                 latitude, longitude, radiusInMiles);
@@ -88,7 +90,7 @@ public class VenueController {
     @Operation(summary = "Update venue details", description = "Updates an existing venue name, address, or location coordinates.")
     public ResponseEntity<VenueResponse> updateVenue(
             @PathVariable Long id,
-            @RequestBody VenueRequest request) {
+            @Valid @RequestBody VenueRequest request) {
 
         log.info("Updating venue ID: {} to name: '{}'", id, request.name());
 

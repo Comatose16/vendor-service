@@ -17,8 +17,12 @@ public interface VenueRepository extends JpaRepository<Venue, Long> {
      * ST_SetSRID/ST_MakePoint constructs a native PostGIS point from inputs.
      */
     @Query(value = """
-    SELECT * FROM venues 
-    WHERE ST_DWithin(location::geography, ST_SetSRID(ST_MakePoint(:longitude, :latitude), 4326)::geography, :radiusInMeters)
+        SELECT * FROM venues v
+        WHERE ST_DWithin(
+            v.location::geography,
+            ST_SetSRID(ST_MakePoint(:longitude, :latitude), 4326)::geography,
+            :radiusInMeters
+        )
     """, nativeQuery = true)
     List<Venue> findVenuesNearby(
             @Param("latitude") double latitude,

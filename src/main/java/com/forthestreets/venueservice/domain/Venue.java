@@ -18,7 +18,7 @@ public class Venue {
 
     private String address;
 
-    @Column(columnDefinition = "geometry(Point, 4326)")
+    @Column(nullable = false, columnDefinition = "GEOMETRY(Point, 4326)")
     private Point location;
 
     @OneToMany(mappedBy = "venue", cascade = CascadeType.ALL, orphanRemoval = true)

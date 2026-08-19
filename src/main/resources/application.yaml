@@ -1,15 +1,20 @@
 spring:
   application:
     name: venue-service
-  profiles:
-    active: ${SPRING_PROFILES_ACTIVE:sandbox}
   jpa:
-    database-platform: org.hibernate.spatial.dialect.postgis.PostgisDialect
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
     hibernate:
       ddl-auto: validate
+  datasource:
+    url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:fts_sandbox}
+    username: ${DB_USERNAME:postgres}
+    password: ${DB_PASSWORD:postgres}
   flyway:
     enabled: true
     baseline-on-migrate: true
+    locations:
+        - classpath:db/migration
+        - classpath:db/devdata # Automatic test seeding
 
 server:
   port: 8080
@@ -18,7 +23,7 @@ management:
   endpoints:
     web:
       exposure:
-        include: health, info, prometheus
+        include: health, info, metrics, prometheus
   endpoint:
     health:
       show-details: when-authorized

@@ -1,4 +1,6 @@
 spring:
+  profiles:
+    active: ${SPRING_PROFILES_ACTIVE:prod}
   datasource:
     url: jdbc:postgresql://${DB_HOST}:${DB_PORT:5432}/${DB_NAME:fts_prod}?sslmode=require
     username: ${DB_USERNAME}
@@ -14,6 +16,12 @@ spring:
     clean-disabled: true # Security guardrail against schema loss
 
 management:
+  otlp:
+    metrics:
+      export:
+        url: ${GRAFANA_OTLP_ENDPOINT}
+        headers:
+          Authorization: ${GRAFANA_OTLP_AUTH_HEADER:}
   tracing:
     sampling:
       probability: 0.1 # Sample 10% of requests to optimize telemetry costs

@@ -20,4 +20,6 @@ CREATE TABLE events (
     CONSTRAINT fk_events_venue FOREIGN KEY (venue_id) REFERENCES venues(id) ON DELETE CASCADE
 );
 
+ALTER TABLE venues ALTER COLUMN location TYPE GEOGRAPHY(Point, 4326) USING location::geography;
+
 CREATE INDEX idx_venues_location ON venues USING GIST (location);

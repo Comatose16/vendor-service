@@ -39,7 +39,7 @@ class VenueRepositoryIntegrationTest extends BaseIntegrationTest {
 
     @BeforeEach
     void setUp() {
-        venueRepository.deleteAll();
+        venueRepository.deleteAllInBatch();
 
         // 1. Create and persist Three Weavers Brewing (Inside radius: ~2.3 miles / ~3701.49m)
         Venue threeWeavers = new Venue();
