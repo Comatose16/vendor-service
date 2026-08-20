@@ -1,0 +1,25 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://${DB_HOST}:${DB_PORT:5432}/${DB_NAME:fts_stage}?sslmode=require
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+    hikari:
+      maximum-pool-size: 25
+      minimum-idle: 10
+      connection-timeout: 20000
+  flyway:
+    locations:
+      - classpath:db/migration # Schema DDL ONLY
+
+management:
+  tracing:
+    sampling:
+      probability: 0.5 # 50% sampling during load test sweeps
+  opentelemetry:
+    resource-attributes:
+      "service.name": venue-service-stage
+      "deployment.environment": stage
+    tracing:
+      export:
+        otlp:
+          endpoint: ${OTLP_ENDPOINT:http://otel-collector:4318/v1/traces}

@@ -38,6 +38,7 @@ services:
       DB_NAME: fts
       DB_USERNAME: postgres
       DB_PASSWORD: postgres
+      SPRING_PROFILES_ACTIVE: local
       MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE: health,info,metrics,prometheus
       OTLP_ENDPOINT: http://jaeger:4318/v1/traces
     depends_on:
